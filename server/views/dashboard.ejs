@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - KDS Araç Yönetim Sistemi</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🚌</div>
+                <h2>Araç Yönetim</h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item active">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#analizler" class="nav-item" onclick="scrollToSection('analytics-section')">
+                    <span class="nav-icon">📈</span>
+                    <span>Analizler</span>
+                </a>
+                <a href="#filo" class="nav-item" onclick="scrollToSection('fleet-section')">
+                    <span class="nav-icon">🚐</span>
+                    <span>Filo Durumu</span>
+                </a>
+                <a href="#takvim" class="nav-item" onclick="scrollToSection('calendar-section')">
+                    <span class="nav-icon">📅</span>
+                    <span>Takvim</span>
+                </a>
+                <a href="#maliyet" class="nav-item" onclick="scrollToSection('cost-analysis-section')">
+                    <span class="nav-icon">💵</span>
+                    <span>Maliyet Analizi</span>
+                </a>
+                <a href="#oneriler" class="nav-item" onclick="scrollToSection('recommendations-section')">
+                    <span class="nav-icon">💡</span>
+                    <span>Öneriler</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span class="user-avatar">👤</span>
+                    <span class="user-name">
+                        <%= user.name || user.username %>
+                    </span>
+                </div>
+                <a href="/logout" class="logout-btn">Çıkış</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-title">
+                    <h1>Dashboard</h1>
+                    <p>Filo Analiz ve Karar Destek Sistemi</p>
+                </div>
+
+                <div class="header-filters">
+                    <div class="filter-group">
+                        <label>Başlangıç</label>
+                        <input type="date" id="filter-from" value="2022-04-10">
+                    </div>
+                    <div class="filter-group">
+                        <label>Bitiş</label>
+                        <input type="date" id="filter-to" value="2025-11-10">
+                    </div>
+                    <div class="filter-group">
+                        <label>Gruplama</label>
+                        <select id="filter-group">
+                            <option value="month" selected>Aylık</option>
+                            <option value="week">Haftalık</option>
+                            <option value="year">Yıllık</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Hızlı Seçim</label>
+                        <select id="quick-select" onchange="applyQuickFilter()">
+                            <option value="">Seçiniz...</option>
+                            <option value="last3years">Son 3 Yıl</option>
+                            <option value="2024">2024 Yılı</option>
+                            <option value="2023">2023 Yılı</option>
+                            <option value="high-season">Yoğun Sezon (2024)</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="loadDashboardData()">
+                        Filtrele
+                    </button>
+                </div>
+            </header>
+
+            <!-- KPI Cards -->
+            <section class="kpi-section">
+                <div class="kpi-card">
+                    <div class="kpi-icon blue">📅</div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" id="kpi-total-tours">-</span>
+                        <span class="kpi-label">Toplam Tur</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon green">💰</div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" id="kpi-total-revenue">-</span>
+                        <span class="kpi-label">Tahmini Gelir</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon orange">🚌</div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" id="kpi-peak-vehicles">-</span>
+                        <span class="kpi-label">Peak Araç İhtiyacı</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon" id="kpi-fleet-status-icon">📊</div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" id="kpi-fleet-status">-</span>
+                        <span class="kpi-label" id="kpi-fleet-label">Filo Durumu</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section (Tur Yoğunluğu) -->
+            <section class="charts-section" id="analytics-section">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>📈 Tur Yoğunluğu</h3>
+                        <span class="chart-subtitle">Seçilen dönem için tur sayısı dağılımı</span>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="tourVolumeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fleet Analysis Section (Ayrı Bölüm) -->
+            <section class="fleet-analysis-section" id="fleet-section">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3>🚐 Filo Durumu Analizi</h3>
+                        <div class="fleet-filters">
+                            <div class="filter-group">
+                                <label>Karşılaştırma:</label>
+                                <select id="fleet-comparison-type" onchange="loadFleetComparison()">
+                                    <option value="monthly">Aylık Trend</option>
+                                    <option value="yearly">Yıllık Karşılaştırma</option>
+                                    <option value="custom">Özel Tarih Aralığı</option>
+                                </select>
+                            </div>
+                            <div class="filter-group" id="fleet-year-filter">
+                                <label>Yıl:</label>
+                                <select id="fleet-year" onchange="loadFleetComparison()">
+                                    <option value="2024" selected>2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2022">2022</option>
+                                </select>
+                            </div>
+                            <div class="filter-group custom-date-filter" id="fleet-custom-dates" style="display: none;">
+                                <label>Başlangıç:</label>
+                                <input type="date" id="fleet-from" value="2024-01-01">
+                                <label>Bitiş:</label>
+                                <input type="date" id="fleet-to" value="2024-12-31">
+                                <button class="btn-secondary" onclick="loadFleetComparison()">Uygula</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fleet Charts Grid -->
+                    <div class="fleet-charts-grid">
+                        <!-- Ana Filo Denge Grafiği -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h4>Filo Kapasite Analizi</h4>
+                                <div class="chart-legend">
+                                    <span class="legend-item"><span class="dot blue"></span>Peak Araç</span>
+                                    <span class="legend-item"><span class="dot gray"></span>Filo (<span
+                                            id="legend-fleet-capacity">40</span>)</span>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="fleetBalanceChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Günlük Tur Dağılımı -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h4>Günlük Tur Dağılımı</h4>
+                                <span class="chart-subtitle">Hafta içi/sonu karşılaştırması</span>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="dailyDistributionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Filo Kullanım Oranı -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h4>Filo Kullanım Oranı</h4>
+                                <span class="chart-subtitle">Kapasiteye göre kullanım yüzdesi</span>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="fleetUtilizationChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Tur/Araç Karşılaştırma -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h4>Tur Sayısı vs Araç İhtiyacı</h4>
+                                <span class="chart-subtitle">Detaylı karşılaştırma analizi</span>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="tourVehicleCompareChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Route Distribution Chart -->
+            <section class="charts-section">
+                <div class="chart-card route-chart-card">
+                    <div class="chart-header">
+                        <h3>📍 Güzergah Dağılımı</h3>
+                        <div class="route-chart-filter">
+                            <select id="route-chart-period" onchange="loadRouteDistribution()">
+                                <option value="all">Tüm Zamanlar</option>
+                                <option value="2025">2025</option>
+                                <option value="2024" selected>2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="high-season">Yoğun Sezon 2024</option>
+                                <option value="low-season">Düşük Sezon 2024</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-body route-chart-body">
+                        <div class="route-chart-container">
+                            <canvas id="routeDistributionChart"></canvas>
+                        </div>
+                        <div class="route-chart-legend" id="route-chart-legend">
+                            <!-- Legend will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Route Analysis -->
+            <section class="route-section">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3>Güzergah Bazlı Analiz</h3>
+                    </div>
+                    <div class="route-grid" id="route-stats">
+                        <div class="route-card loading">Yükleniyor...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fleet Balance Tables -->
+            <section class="tables-section">
+                <div class="table-card">
+                    <div class="table-header shortage">
+                        <h3>⚠️ Araç Yetersizliği Olan Aylar</h3>
+                        <span class="table-subtitle" id="shortage-subtitle">Filo kapasitesi yetersiz kalan
+                            dönemler</span>
+                    </div>
+                    <div class="table-body">
+                        <table id="shortage-table">
+                            <thead>
+                                <tr>
+                                    <th>Ay</th>
+                                    <th>Toplam Tur</th>
+                                    <th>Günlük Ort.</th>
+                                    <th>Filo</th>
+                                    <th>Eksik Araç</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6" class="loading">Yükleniyor...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header surplus">
+                        <h3>✅ Boşta Araç Olan Aylar</h3>
+                        <span class="table-subtitle" id="surplus-subtitle">Filo kapasitesi fazlası olan dönemler</span>
+                    </div>
+                    <div class="table-body">
+                        <table id="surplus-table">
+                            <thead>
+                                <tr>
+                                    <th>Ay</th>
+                                    <th>Toplam Tur</th>
+                                    <th>Günlük Ort.</th>
+                                    <th>Filo</th>
+                                    <th>Kullanılan</th>
+                                    <th>Boşta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6" class="loading">Yükleniyor...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calendar Section -->
+            <section class="calendar-section" id="calendar-section">
+                <div class="section-card calendar-card">
+                    <div class="section-header">
+                        <h3>📅 Tur Takvimi</h3>
+                        <div class="calendar-controls">
+                            <div class="filter-group">
+                                <label>Güzergah:</label>
+                                <select id="calendar-route" onchange="loadCalendarData()">
+                                    <option value="">Tümü</option>
+                                    <option value="1">Muğla</option>
+                                    <option value="2">İzmir – Efes</option>
+                                    <option value="3">Kapadokya</option>
+                                    <option value="4">İstanbul</option>
+                                </select>
+                            </div>
+                            <div class="calendar-nav">
+                                <button class="btn-nav" onclick="changeCalendarMonth(-1)">◀</button>
+                                <span id="calendar-month-label">Ocak 2024</span>
+                                <button class="btn-nav" onclick="changeCalendarMonth(1)">▶</button>
+                            </div>
+                            <div class="filter-group">
+                                <label>Yıl:</label>
+                                <select id="calendar-year" onchange="loadCalendarData()">
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2024" selected>2024</option>
+                                    <option value="2025">2025</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calendar-body">
+                        <div class="calendar-grid" id="calendar-grid">
+                            <!-- Calendar days will be rendered here -->
+                        </div>
+
+                        <div class="calendar-info-panel" id="calendar-info">
+                            <div class="info-header">
+                                <h4>📋 Gün Detayı</h4>
+                                <span id="calendar-selected-date">Bir gün seçin</span>
+                            </div>
+                            <div class="info-content" id="calendar-day-info">
+                                <p class="no-selection">Takvimden bir güne tıklayarak detayları görün</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cost Analysis Section -->
+            <section class="cost-analysis-section" id="cost-analysis-section">
+                <div class="section-card cost-analysis-card">
+                    <div class="section-header">
+                        <h3>💵 Maliyet Senaryosu Karşılaştırması</h3>
+                        <div class="cost-analysis-filter">
+                            <select id="cost-analysis-year" onchange="loadCostAnalysis()">
+                                <option value="all">Tüm Zamanlar</option>
+                                <option value="2025">2025</option>
+                                <option value="2024" selected>2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="cost-analysis-body">
+                        <div class="cost-scenario-cards">
+                            <div class="scenario-card scenario-a">
+                                <div class="scenario-header">
+                                    <span class="scenario-icon">❌</span>
+                                    <h4>Senaryo A: Turlardan Feragat</h4>
+                                </div>
+                                <p class="scenario-desc">Ek araç kiralanmaz, filo kapasitesini aşan turlar iptal edilir.
+                                </p>
+                                <div class="scenario-stats">
+                                    <div class="scenario-stat">
+                                        <span class="label">İptal Edilen Tur</span>
+                                        <span class="value" id="scenario-a-tours">-</span>
+                                    </div>
+                                    <div class="scenario-stat">
+                                        <span class="label">Gelir Kaybı</span>
+                                        <span class="value loss" id="scenario-a-loss">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="scenario-card scenario-b">
+                                <div class="scenario-header">
+                                    <span class="scenario-icon">✅</span>
+                                    <h4>Senaryo B: Araç Kiralama</h4>
+                                </div>
+                                <p class="scenario-desc">Eksik araçlar kiralanır (5.000₺/araç/gün), tüm turlar yapılır.
+                                </p>
+                                <div class="scenario-stats">
+                                    <div class="scenario-stat">
+                                        <span class="label">Kiralanan Araç-Gün</span>
+                                        <span class="value" id="scenario-b-rentals">-</span>
+                                    </div>
+                                    <div class="scenario-stat">
+                                        <span class="label">Kiralama Maliyeti</span>
+                                        <span class="value cost" id="scenario-b-cost">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cost-comparison">
+                            <div class="comparison-chart-container">
+                                <canvas id="costComparisonChart"></canvas>
+                            </div>
+                            <div class="comparison-result" id="cost-comparison-result">
+                                <!-- Result will be rendered here -->
+                            </div>
+                        </div>
+
+                        <div class="cost-monthly-breakdown">
+                            <h4>📊 Aylık Karşılaştırma</h4>
+                            <div class="monthly-chart-container">
+                                <canvas id="monthlyCostChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommendations Panel -->
+            <section class="recommendations-section" id="recommendations-section">
+                <div class="section-card recommendation-card">
+                    <div class="section-header">
+                        <h3>💡 Yönetici Öneri Paneli</h3>
+                        <div class="year-selector">
+                            <label>Analiz Yılı:</label>
+                            <select id="recommendation-year" onchange="loadRecommendations()">
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2025">2025</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="recommendation-content" id="recommendation-content">
+                        <div class="loading">Yükleniyor...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+    <script>
+        // Sayfa yüklendiğinde verileri getir
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDashboardData();
+            loadRecommendations();
+        });
+    </script>
+</body>
+
+</html>

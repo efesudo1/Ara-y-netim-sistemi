@@ -1,0 +1,27 @@
+{
+  "name": "kds-arac-yonetim",
+  "version": "1.0.0",
+  "description": "Karar Destek Sistemi - Araç Filo Yönetimi",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "node server/app.js",
+    "setup": "node server/setup-db.js"
+  },
+  "keywords": [
+    "kds",
+    "fleet-management",
+    "tour-analysis"
+  ],
+  "author": "KDS Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.6.5"
+  }
+}
