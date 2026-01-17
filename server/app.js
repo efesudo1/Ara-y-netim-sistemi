@@ -1,6 +1,6 @@
 /**
- * KDS Araç Yönetim Sistemi - Ana Uygulama
- * Express + EJS + MySQL
+ * Ana uygulama dosyası
+ * Express.js web sunucusu yapılandırması
  */
 
 require('dotenv').config();

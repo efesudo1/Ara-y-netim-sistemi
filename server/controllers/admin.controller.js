@@ -1,6 +1,6 @@
 /**
- * KDS Araç Yönetim Sistemi - Admin Controller
- * Seed ve yönetim endpoint'leri
+ * Admin Controller
+ * Veritabanı yönetimi ve seed işlemleri
  */
 
 const { callProcedure, query, pool } = require('../config/db');

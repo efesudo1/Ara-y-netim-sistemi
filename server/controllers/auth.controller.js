@@ -1,6 +1,6 @@
 /**
- * KDS Araç Yönetim Sistemi - Auth Controller
- * Login işlemleri
+ * Auth Controller
+ * Kimlik doğrulama işlemleri
  */
 
 const bcrypt = require('bcryptjs');

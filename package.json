@@ -13,7 +13,7 @@
     "fleet-management",
     "tour-analysis"
   ],
-  "author": "KDS Team",
+  "author": "Ahmet",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",

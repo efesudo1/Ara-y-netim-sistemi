@@ -1,6 +1,6 @@
 /**
- * KDS Araç Yönetim Sistemi - Auth Middleware
- * JWT Token Doğrulama
+ * Auth Middleware
+ * JWT token doğrulama katmanı
  */
 
 const jwt = require('jsonwebtoken');

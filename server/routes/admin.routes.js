@@ -1,5 +1,5 @@
 /**
- * KDS Araç Yönetim Sistemi - Admin Routes
+ * Admin Route tanımlamaları
  */
 
 const express = require('express');

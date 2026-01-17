@@ -1,6 +1,6 @@
 /**
- * KDS Araç Yönetim Sistemi - MySQL Veritabanı Bağlantısı
- * XAMPP MySQL için yapılandırılmış
+ * Veritabanı bağlantı yönetimi
+ * MySQL connection pool ve yardımcı fonksiyonlar
  */
 
 const mysql = require('mysql2/promise');

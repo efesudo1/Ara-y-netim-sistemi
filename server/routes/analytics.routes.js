@@ -1,5 +1,5 @@
 /**
- * KDS Araç Yönetim Sistemi - Analytics Routes
+ * Analytics Route tanımlamaları
  */
 
 const express = require('express');

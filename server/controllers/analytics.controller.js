@@ -1,6 +1,6 @@
 /**
- * KDS Araç Yönetim Sistemi - Analytics Controller
- * Dashboard rapor endpoint'leri
+ * Analytics Controller
+ * Dashboard ve raporlama endpoint'leri
  */
 
 const { callProcedure, query } = require('../config/db');

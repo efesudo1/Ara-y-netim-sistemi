@@ -1,6 +1,26 @@
-# KDS Araç Yönetim Sistemi
+# Araç Filo Yönetim ve Karar Destek Sistemi
 
-Türkiye'deki 4 tur güzergahı ve 250 araçlık filo üzerinden **tur yoğunluğu + araç yeterlilik/yetersizlik + araç fazlalığı** analizleri üreten Karar Destek Sistemi.
+Türkiye'deki 4 tur güzergahı ve araç filosu üzerinden **tur yoğunluğu**, **araç yeterlilik/yetersizlik** ve **araç fazlalığı** analizleri üreten karar destek sistemi.
+
+## Proje Amacı
+
+Bu proje, sunucu taraflı yazılım geliştirme becerilerinin kazanılması amacıyla geliştirilmiştir. Projenin temel hedefleri:
+
+- MVC mimarisini doğru ve tutarlı biçimde uygulama
+- REST prensiplerine uygun API tasarlama
+- Veri modeli, iş mantığı ve uç noktalarını ayrıştırma
+- Yazılım projelerinde okunabilirlik, sürdürülebilirlik ve ölçeklenebilirlik sağlama
+
+## MVC Mimarisi
+
+Proje katı biçimde MVC (Model-View-Controller) mimarisine uygun tasarlanmıştır:
+
+| Katman | Klasör | Açıklama |
+|--------|--------|----------|
+| **Model** | `server/models/` | Veritabanı entity sınıfları ve iş mantığı |
+| **View** | `server/views/` | EJS şablon dosyaları (kullanıcı arayüzü) |
+| **Controller** | `server/controllers/` | İstek işleme ve yanıt oluşturma |
+| **Routes** | `server/routes/` | URL eşleştirme ve yönlendirme |
 
 ## 🚀 Hızlı Başlangıç
 
@@ -74,35 +94,45 @@ Tarayıcınızda: **http://localhost:3000**
 ## 📁 Proje Yapısı
 
 ```
-kds araç yönetim sistemi/
+araç yönetim sistemi/
 ├── server/
-│   ├── app.js                 # Express ana uygulama
+│   ├── app.js                    # Express ana uygulama
 │   ├── config/
-│   │   ├── db.js             # MySQL bağlantısı
-│   │   └── env.example       # Örnek .env dosyası
-│   ├── routes/
-│   │   ├── auth.routes.js    # Login/logout
-│   │   ├── analytics.routes.js  # Dashboard API
-│   │   └── admin.routes.js   # Seed endpoint
-│   ├── controllers/
+│   │   ├── db.js                 # MySQL bağlantı yönetimi
+│   │   └── env.example           # Örnek .env dosyası
+│   ├── models/                   # MODEL KATMANI
+│   │   ├── index.js              # Model export
+│   │   ├── Arac.model.js         # Araç entity
+│   │   ├── Tur.model.js          # Tur entity
+│   │   ├── Guzergah.model.js     # Güzergah entity
+│   │   └── AdminKullanici.model.js
+│   ├── controllers/              # CONTROLLER KATMANI
 │   │   ├── auth.controller.js
 │   │   ├── analytics.controller.js
-│   │   └── admin.controller.js
+│   │   ├── admin.controller.js
+│   │   └── health.controller.js
+│   ├── routes/                   # ROUTE TANIMLARI
+│   │   ├── auth.routes.js
+│   │   ├── analytics.routes.js
+│   │   ├── admin.routes.js
+│   │   └── health.routes.js
 │   ├── middlewares/
-│   │   └── auth.middleware.js  # JWT doğrulama
+│   │   └── auth.middleware.js    # JWT doğrulama
 │   ├── sql/
-│   │   ├── 01_schema.sql     # Tablo yapıları
-│   │   ├── 02_procedures.sql # Stored procedures
-│   │   └── 03_seed.sql       # Veri seed
-│   ├── views/
+│   │   ├── 01_schema.sql         # Tablo yapıları
+│   │   ├── 02_procedures.sql     # Stored procedures
+│   │   └── 03_seed.sql           # Veri seed
+│   ├── views/                    # VIEW KATMANI
 │   │   ├── login.ejs
 │   │   ├── dashboard.ejs
 │   │   └── error.ejs
 │   └── public/
 │       ├── css/style.css
 │       └── js/dashboard.js
-├── .env                       # Environment değişkenleri
+├── .env                          # Environment değişkenleri
+├── .env.example
 ├── package.json
+├── PROJE_RAPORU.md               # Teknik dokümantasyon
 └── README.md
 ```
 
@@ -204,4 +234,4 @@ MIT License
 
 ---
 
-**Geliştirici:** KDS Team
+**Geliştirici:** Ahmet
